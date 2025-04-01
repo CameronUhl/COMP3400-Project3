@@ -45,6 +45,12 @@ cgi_response (char *uri, char *version, char *method, char *query,
   //   "<h2>Hello world!</h2>\n"
   //   "</body>\n"
   //   "</html>\n"
+  
+  char *args = { NULL };
+	char *qs = "QUERY_STRING="
+	strcat (qs, query);
+	char *env[] = { qs, NULL };
+	execve (uri, args, env);
   return strdup ("HTTP/1.0 404 Not Found" CRLF CRLF);
 
   // TODO [FULL]: Set the environment variables needed for the CGI programs
