@@ -60,39 +60,18 @@ serve_request (int connfd)
   // the query string will need to be passed using an environment variable
   // called "QUERY_STRING".
   
-  
+  char *response = NULL;
   if (strncmp (uri, "srv_root", 8) == 0)
   	{
-  		int fd = open (uri, O_RDONLY);
-  		read (fd, response, 10240;
+  		response = html_response (uri, version);
+  		write (connfd, response, strlen (response));
   	}
 	else 
 		{
-			int pipefd[2];
-			pipe (pipefd);
+			response = cgi_response (uri, version, method, query, size, boundary, body); // fork in CGI response because we still need to get the return value fron the function.
 			
-			pid_t child = fork();
-			
-			if (child = 0) //child code
-				{
-					close (pipefd[0]); // close read end
-					dup2 (STDOUT_FILENO, pipefd[1]); //NEED TO FIGURE OUT WHERE TO FORK AND PIPE
-					/*char *args = { NULL };
-					char *qs = "QUERY_STRING="
-					strcat (qs, query);
-					char *env[] = { qs, NULL };
-					execve (uri, args, env);*/
-					cgi_response (uri, version, method, query, size, boundary, body);
-				}
-			else
-				{
-					close (pipefd[1]) //close write end
-					read (pipefd[0], response, 1024);
-					close (pipefd[0]); 
-				]
 		}
-  //char *response = html_response (uri, version);
-  write (connfd, response, strlen (response));
+  
 
   shutdown (connfd, SHUT_RDWR);
   close (connfd);

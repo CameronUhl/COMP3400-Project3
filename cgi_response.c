@@ -45,13 +45,31 @@ cgi_response (char *uri, char *version, char *method, char *query,
   //   "<h2>Hello world!</h2>\n"
   //   "</body>\n"
   //   "</html>\n"
-  
-  char *args = { NULL };
-	char *qs = "QUERY_STRING="
-	strcat (qs, query);
-	char *env[] = { qs, NULL };
-	execve (uri, args, env);
-  return strdup ("HTTP/1.0 404 Not Found" CRLF CRLF);
+  int pipefd[2];
+	pipe (pipefd);
+	
+	pid_t child = fork();
+	char* response = malloc (2048);
+	if (child == 0) //child code
+		{
+			close (pipefd[0]); // close read end
+			dup2 (STDOUT_FILENO, pipefd[1]);
+			char *args = { NULL };
+			char *qs = "QUERY_STRING=";
+			strcat (qs, query);
+			char *env[] = { qs, NULL };
+			execve (uri, args, env);
+			
+		}
+	else
+		{
+			close (pipefd[1]); //close write end
+			
+			read (pipefd[0], response, 2048);
+			close (pipefd[0]); 
+		}
+
+  return response;//strdup ("HTTP/1.0 404 Not Found" CRLF CRLF);
 
   // TODO [FULL]: Set the environment variables needed for the CGI programs
   // located in cgi-bin. To do this, you will need to use either execve()
