@@ -55,24 +55,25 @@ main ()
 	char buf[1024];
 	FILE* file  = fopen ("data/data.txt", "r");
 	
-	char* table = "<body>\n  <div class=\"container\">\n  <br />\n<h2 class=\"mb-0>Database Records</h2>\n<div class=\"row\">\n";
+	printf ("  <body>\n    <div class=\"container\">\n      <br />\n      <h2 class=\"mb-0\">Database Records</h2>\n      <div class=\"row\">\n");
 	
 	char* r = fgets(buf, sizeof(buf), file);
 	while(r != NULL)
 	  {
 	    char* hash = strtok (buf, " "); 
 	    char* filename = strtok (NULL, " ");
-	    printf ("      <div class=\"col py-md-2 border bg-light\">%s</div>\n", filename);
-	    printf ("      <div class=\"col py-md-2 border bg-light\">%s</div>\n", hash);
+	    filename [strlen(filename)-1] = '\0';
+	    printf ("        <div class=\"col py-md-2 border bg-light\">%s</div>\n", filename);
+	    printf ("        <div class=\"col py-md-2 border bg-light\">%s</div>\n", hash);
 	    r = fgets(buf, sizeof(buf), file);
 	    if (r != NULL)
 	    	{
-	    		printf ("<div class=\"w-100\"></div>\n");
+	    		printf ("        <div class=\"w-100\"></div>\n");
 	    	}
 	  }
 	fclose (file);
 	
-	printf ("    </div>\n  </div>\n</body>\n");
+	printf ("      </div>\n    </div>\n  </body>\n");
 	
   // TODO [MIN]: Once you have the basic structure working, extend it to
   // read in environment variables (db, record, hash, and QUERY_STRING).

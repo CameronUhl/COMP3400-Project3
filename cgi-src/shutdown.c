@@ -20,6 +20,6 @@ main (void)
   // Once this program finishes running, the server should shut itself down.
   // (This shutdown is handled in serve.c, not here.)
 
-	printf("<html>\n<head>\n\t<title?Success</title>\n</head>\n<body>\t<p>Server has stopped</p>\n</body>\n</html>\n");
+	printf("<html>\n<head>\n  <title>Success!</title>\n</head>\n<body>\n  <p>Server has stopped</p>\n</body>\n</html>\n");
   return 0;
 }
