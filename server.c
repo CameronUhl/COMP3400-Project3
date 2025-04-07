@@ -20,6 +20,7 @@ serve_request (int connfd)
   char *version = NULL;
   char *boundary = NULL;
   char *body = NULL;
+  printf ("about to retreive");
   ssize_t size = retrieve_request (connfd, &method, &uri, &query, &version,
                                   &boundary, &body);
   if (size < 0)
@@ -62,17 +63,15 @@ serve_request (int connfd)
   
   char *response = NULL;
   if (strncmp (uri, "srv_root", 8) == 0)
-  	{
-  		response = html_response (uri, version);
-  		write (connfd, response, strlen (response));
-  	}
-	else 
-		{
-			response = cgi_response (uri, version, method, query, size, boundary, body); // fork in CGI response because we still need to get the return value fron the function.
-			
-		}
-  
-
+    {
+      response = html_response (uri, version);
+      write (connfd, response, strlen (response));
+    }
+  else 
+    {
+      response = cgi_response (uri, version, method, query, size, boundary, body); // fork in CGI response because we still need to get the return value from the function.		
+    }
+    
   shutdown (connfd, SHUT_RDWR);
   close (connfd);
 
@@ -90,10 +89,10 @@ serve_request (int connfd)
   // process with the SIGUSR1 signal.
   
   if (strcmp (uri, "cgi-bin/shutdown.cgi") == 0)
-  	{
-  		free (uri);
-  		raise (SIGUSR1);
-  	}
+    {
+      free (uri);
+      raise (SIGUSR1);
+    }
   
   if (uri != NULL)
     free (uri);

@@ -49,7 +49,7 @@ main ()
 
   query = getenv ("QUERY_STRING");
 
-  if (query != NULL) // if query string is not set
+  if (query != NULL) // if query string is set
     {
       char *key = strtok (query, "=");
       while (key != NULL)
@@ -67,6 +67,7 @@ main ()
   else // looking for environment variables independently if query string is not set
     {
       db = getenv ("db");
+      //printf ("DB: %s\n", db);
       record = getenv ("record");
       hash = getenv ("hash");
     }
@@ -77,49 +78,56 @@ main ()
   printf ("       hash: %s\n", hash);
   printf ("       query: %s\n", query);
   printf ("    -->\n\n");
-  char buffer[1024];
 
   FILE* file;
   char buf[1024];
-  if (record != NULL) //opening the specified record
+  if (db != NULL) //opening the specified record
     {
-      int n = snprintf (buffer , 0, "data/%s", record);
+      /*int n = snprintf (buffer , 0, "data/%s", record);
       realloc (record, n+1);
       snprintf (buffer , n+1, "data/%s", record);
-      record = strdup (buffer);
-      file  = fopen (record, "r");
+      record = strdup (buffer);*/
+
+      char *dbname = "data/";
+      printf ("DBName: %s\n", dbname);
+      strcat (dbname, db);
+      dbname = strdup (dbname);
+
+      file  = fopen (dbname, "r");
     }
   else 
     {
+      //printf ("Opening data/data.txt\n");     
       file  = fopen ("data/data.txt", "r");
     }
   printf ("  <body>\n    <div class=\"container\">\n      <br />\n      <h2 class=\"mb-0\">Database Records</h2>\n      <div class=\"row\">\n");
-
+  
+  int recordNum = 1;
   char* r = fgets(buf, sizeof(buf), file);
   while(r != NULL)
     {
-      char* hashReceived = strtok (buf, " ");
-        if (record != NULL)
-          {
-            if (strcmp (hash, hashReceived) != 0)
-              { 
-                char buff[1024];
-                int n = snprintf (buff , 0, "%s <span class=\"badge badge-danger\">MISMATCH</span>", hashReceived);
-                realloc (hash, n+1);
-                snprintf (buff , n+1, "%s <span class=\"badge badge-danger\">MISMATCH</span>", hashReceived);
-                hashReceived = strdup (buff);
-              }
-            /*else
-              {
-                hash = hashReceived;
-              }*/
-          }
-        
-      char* filename = strtok (NULL, " ");
-      filename [strlen(filename)-1] = '\0';
-      printf ("        <div class=\"col py-md-2 border bg-light\">%s</div>\n", filename);
-      printf ("        <div class=\"col py-md-2 border bg-light\">%s</div>\n", hashReceived);
-      r = fgets(buf, sizeof(buf), file);
+      char* hashRead = strtok (buf, " ");
+      if (record == NULL)
+        {
+          char* filename = strtok (NULL, " ");
+          filename [strlen(filename)-1] = '\0';
+          printf ("        <div class=\"col py-md-2 border bg-light\">%s</div>\n", filename);
+          printf ("        <div class=\"col py-md-2 border bg-light\">%s</div>\n", hashRead);
+          r = fgets(buf, sizeof(buf), file);
+        }
+      else if (atoi (record) == recordNum)
+        {
+          if (strcmp (hash, hashRead) != 0)
+            { 
+              char buff[1024];
+              int n = snprintf (buff , 0, "%s <span class=\"badge badge-danger\">MISMATCH</span>", hashRead);
+              realloc (hash, n+1);
+              snprintf (buff , n+1, "%s <span class=\"badge badge-danger\">MISMATCH</span>", hashRead);
+              hashRead = strdup (buff);
+            }
+          r = NULL;
+        }
+
       if (r != NULL)
       	{
       	  printf ("        <div class=\"w-100\"></div>\n");
