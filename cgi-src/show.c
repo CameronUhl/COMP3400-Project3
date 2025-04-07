@@ -25,12 +25,7 @@ main ()
   char *query = NULL;
   // This is an HTML comment. It's useful for debugging to see if your
   // environment variables got through.
-  printf ("  <!-- Environment variables:\n");
-  printf ("       db: %s\n", db);
-  printf ("       record: %s\n", record);
-  printf ("       hash: %s\n", hash);
-  printf ("       query: %s\n", query);
-  printf ("    -->\n\n");
+
 
   // TODO [PART]: Read the data/data.txt file and produce an HTML table
   // to match the output in the cgi-src/tests/expected/PART_show_all.txt
@@ -51,29 +46,88 @@ main ()
   //        </div>
   //      </div>
   //    </body>
-	
-	char buf[1024];
-	FILE* file  = fopen ("data/data.txt", "r");
-	
-	printf ("  <body>\n    <div class=\"container\">\n      <br />\n      <h2 class=\"mb-0\">Database Records</h2>\n      <div class=\"row\">\n");
-	
-	char* r = fgets(buf, sizeof(buf), file);
-	while(r != NULL)
-	  {
-	    char* hash = strtok (buf, " "); 
-	    char* filename = strtok (NULL, " ");
-	    filename [strlen(filename)-1] = '\0';
-	    printf ("        <div class=\"col py-md-2 border bg-light\">%s</div>\n", filename);
-	    printf ("        <div class=\"col py-md-2 border bg-light\">%s</div>\n", hash);
-	    r = fgets(buf, sizeof(buf), file);
-	    if (r != NULL)
-	    	{
-	    		printf ("        <div class=\"w-100\"></div>\n");
-	    	}
-	  }
-	fclose (file);
-	
-	printf ("      </div>\n    </div>\n  </body>\n");
+
+  query = getenv ("QUERY_STRING");
+
+  if (query != NULL) // if query string is not set
+    {
+      char *key = strtok (query, "=");
+      while (key != NULL)
+      {
+        char *value = strtok (NULL, "&"); 
+        if (strncmp ("db", key, 2) == 0)
+          db = value;
+        else if (strncmp ("record", key, 6) == 0)
+          record = value;
+        else if (strncmp ("hash", key, 4) == 0)
+          hash = value;
+        key = strtok (NULL, "=");
+      }
+    }
+  else // looking for environment variables independently if query string is not set
+    {
+      db = getenv ("db");
+      record = getenv ("record");
+      hash = getenv ("hash");
+    }
+    
+  printf ("  <!-- Environment variables:\n");
+  printf ("       db: %s\n", db);
+  printf ("       record: %s\n", record);
+  printf ("       hash: %s\n", hash);
+  printf ("       query: %s\n", query);
+  printf ("    -->\n\n");
+  char buffer[1024];
+
+  FILE* file;
+  char buf[1024];
+  if (record != NULL) //opening the specified record
+    {
+      int n = snprintf (buffer , 0, "data/%s", record);
+      realloc (record, n+1);
+      snprintf (buffer , n+1, "data/%s", record);
+      record = strdup (buffer);
+      file  = fopen (record, "r");
+    }
+  else 
+    {
+      file  = fopen ("data/data.txt", "r");
+    }
+  printf ("  <body>\n    <div class=\"container\">\n      <br />\n      <h2 class=\"mb-0\">Database Records</h2>\n      <div class=\"row\">\n");
+
+  char* r = fgets(buf, sizeof(buf), file);
+  while(r != NULL)
+    {
+      char* hashReceived = strtok (buf, " ");
+        if (record != NULL)
+          {
+            if (strcmp (hash, hashReceived) != 0)
+              { 
+                char buff[1024];
+                int n = snprintf (buff , 0, "%s <span class=\"badge badge-danger\">MISMATCH</span>", hashReceived);
+                realloc (hash, n+1);
+                snprintf (buff , n+1, "%s <span class=\"badge badge-danger\">MISMATCH</span>", hashReceived);
+                hashReceived = strdup (buff);
+              }
+            /*else
+              {
+                hash = hashReceived;
+              }*/
+          }
+        
+      char* filename = strtok (NULL, " ");
+      filename [strlen(filename)-1] = '\0';
+      printf ("        <div class=\"col py-md-2 border bg-light\">%s</div>\n", filename);
+      printf ("        <div class=\"col py-md-2 border bg-light\">%s</div>\n", hashReceived);
+      r = fgets(buf, sizeof(buf), file);
+      if (r != NULL)
+      	{
+      	  printf ("        <div class=\"w-100\"></div>\n");
+      	}
+    }
+  fclose (file);
+
+  printf ("      </div>\n    </div>\n  </body>\n");
 	
   // TODO [MIN]: Once you have the basic structure working, extend it to
   // read in environment variables (db, record, hash, and QUERY_STRING).
