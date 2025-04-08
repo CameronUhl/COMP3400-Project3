@@ -4,6 +4,7 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <stdbool.h>
 
 int
 main ()
@@ -47,14 +48,21 @@ main ()
   //      </div>
   //    </body>
 
-  query = getenv ("QUERY_STRING");
+  
 
-  if (query != NULL) // if query string is set
+  if ((query = getenv ("QUERY_STRING"))) // if query string is set
     {
+      printf ("  <!-- Environment variables:\n");
+      printf ("       db: %s\n", db);
+      printf ("       record: %s\n", record);
+      printf ("       hash: %s\n", hash);
+      printf ("       query: %s\n", query);
+      printf ("    -->\n\n");
       char *key = strtok (query, "=");
+      char *value;
       while (key != NULL)
       {
-        char *value = strtok (NULL, "&"); 
+        value = strtok (NULL, "&"); 
         if (strncmp ("db", key, 2) == 0)
           db = value;
         else if (strncmp ("record", key, 6) == 0)
@@ -70,29 +78,25 @@ main ()
       //printf ("DB: %s\n", db);
       record = getenv ("record");
       hash = getenv ("hash");
+      printf ("  <!-- Environment variables:\n");
+      printf ("       db: %s\n", db);
+      printf ("       record: %s\n", record);
+      printf ("       hash: %s\n", hash);
+      printf ("       query: %s\n", query);
+      printf ("    -->\n\n");
     }
     
-  printf ("  <!-- Environment variables:\n");
-  printf ("       db: %s\n", db);
-  printf ("       record: %s\n", record);
-  printf ("       hash: %s\n", hash);
-  printf ("       query: %s\n", query);
-  printf ("    -->\n\n");
-
   FILE* file;
   char buf[1024];
-  if (db != NULL) //opening the specified record
+  if (db != NULL) //opening the specified database file
     {
       /*int n = snprintf (buffer , 0, "data/%s", record);
       realloc (record, n+1);
       snprintf (buffer , n+1, "data/%s", record);
       record = strdup (buffer);*/
 
-      char *dbname = "data/";
-      printf ("DBName: %s\n", dbname);
-      strcat (dbname, db);
-      dbname = strdup (dbname);
-
+      char dbname[256];
+      snprintf (dbname, 256, "data/%s", db);
       file  = fopen (dbname, "r");
     }
   else 
@@ -104,34 +108,34 @@ main ()
   
   int recordNum = 1;
   char* r = fgets(buf, sizeof(buf), file);
+  bool danger = false;
   while(r != NULL)
     {
       char* hashRead = strtok (buf, " ");
-      if (record == NULL)
+      if (record == NULL || atoi (record) == recordNum) // If record is NULL or the record number is equal to what record we are on
         {
           char* filename = strtok (NULL, " ");
           filename [strlen(filename)-1] = '\0';
           printf ("        <div class=\"col py-md-2 border bg-light\">%s</div>\n", filename);
-          printf ("        <div class=\"col py-md-2 border bg-light\">%s</div>\n", hashRead);
-          r = fgets(buf, sizeof(buf), file);
-        }
-      else if (atoi (record) == recordNum)
-        {
-          if (strcmp (hash, hashRead) != 0)
+          if (hash != NULL)
             { 
-              char buff[1024];
-              int n = snprintf (buff , 0, "%s <span class=\"badge badge-danger\">MISMATCH</span>", hashRead);
-              realloc (hash, n+1);
-              snprintf (buff , n+1, "%s <span class=\"badge badge-danger\">MISMATCH</span>", hashRead);
-              hashRead = strdup (buff);
+              if (strcmp (hash, hashRead) != 0)
+                {
+                  danger = true;
+                  char buff[256];
+                  snprintf (buff, 256, "%s <span class=\"badge badge-danger\">MISMATCH</span>", hashRead);
+                  strcat (hashRead, buff);
+                }
             }
-          r = NULL;
+          printf ("        <div class=\"col py-md-2 border bg-light\">%s</div>\n", hashRead);  
         }
 
-      if (r != NULL)
-      	{
-      	  printf ("        <div class=\"w-100\"></div>\n");
-      	}
+      if (r != NULL && !danger)
+    	{
+    	  printf ("        <div class=\"w-100\"></div>\n");
+    	}
+      r = fgets(buf, sizeof(buf), file);
+      ++recordNum;
     }
   fclose (file);
 
