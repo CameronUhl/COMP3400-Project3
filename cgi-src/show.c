@@ -58,6 +58,7 @@ main ()
       printf ("       hash: %s\n", hash);
       printf ("       query: %s\n", query);
       printf ("    -->\n\n");
+      
       char *key = strtok (query, "=");
       char *value;
       while (key != NULL)
@@ -78,6 +79,7 @@ main ()
       //printf ("DB: %s\n", db);
       record = getenv ("record");
       hash = getenv ("hash");
+
       printf ("  <!-- Environment variables:\n");
       printf ("       db: %s\n", db);
       printf ("       record: %s\n", record);
@@ -108,7 +110,6 @@ main ()
   
   int recordNum = 1;
   char* r = fgets(buf, sizeof(buf), file);
-  bool danger = false;
   while(r != NULL)
     {
       char* hashRead = strtok (buf, " ");
@@ -121,21 +122,19 @@ main ()
             { 
               if (strcmp (hash, hashRead) != 0)
                 {
-                  danger = true;
                   char buff[256];
-                  snprintf (buff, 256, "%s <span class=\"badge badge-danger\">MISMATCH</span>", hashRead);
+                  snprintf (buff, 256, " <span class=\"badge badge-danger\">MISMATCH</span>");
                   strcat (hashRead, buff);
                 }
             }
           printf ("        <div class=\"col py-md-2 border bg-light\">%s</div>\n", hashRead);  
         }
-
-      if (r != NULL && !danger)
+      r = fgets(buf, sizeof(buf), file);
+      ++recordNum;
+      if (record == NULL && r != NULL)
     	{
     	  printf ("        <div class=\"w-100\"></div>\n");
     	}
-      r = fgets(buf, sizeof(buf), file);
-      ++recordNum;
     }
   fclose (file);
 

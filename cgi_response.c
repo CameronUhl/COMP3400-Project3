@@ -56,7 +56,7 @@ cgi_response (char *uri, char *version, char *method, char *query,
 	  {
 	    close (pipefd[0]); // close read end
 	    dup2 (pipefd[1], STDOUT_FILENO);
-	    char *args[] = { NULL };
+	    char *args[] = { NULL }; // TODO copy parsing code into here to set environment variables!
 	    //char *qs = "QUERY_STRING=";
 	    //strcat (qs, query);
 	    //return query;
