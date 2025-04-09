@@ -1,8 +1,0 @@
-<html>
-<head>
-  <title>Success!</title>
-</head>
-<body>
-  <p>Server has stopped</p>
-</body>
-</html>
