@@ -50,7 +50,7 @@ main ()
 
   
 
-  if ((query = getenv ("QUERY_STRING"))) // if query string is set
+  if ((query = getenv ("QUERY_STRING")) != NULL) // if query string is set
     {
       printf ("  <!-- Environment variables:\n");
       printf ("       db: %s\n", db);

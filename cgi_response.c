@@ -81,7 +81,7 @@ cgi_response (char *uri, char *version, char *method, char *query,
 	        char *line = strstr (body, boundary);
 	        int count = 0;
 	        char *env[] = { NULL, NULL, NULL, NULL };
-                while (strlen (line) > 5)
+                while (strlen (line) > 4)
                   { 
                     char* keyStart = strstr (line, "name=");
                     keyStart += 6;
@@ -92,12 +92,17 @@ cgi_response (char *uri, char *version, char *method, char *query,
                     key[keySize] = '\0';
                     
                     char* valueStart = keyEnd + 5;
-                    char* valueEnd = strstr (valueStart, "\r");
+                    char* valueEnd = strstr (valueStart, "\n");
                     size_t valueSize = valueEnd - valueStart;
                     char* value = malloc (valueSize + 1);
                     strncpy (value, valueStart, valueSize);
                     value [valueSize] = '\0';
                     
+                    printf ("%s=%s\n", key, value);
+                    
+                    line = strstr (keyEnd, boundary);
+                    line += strlen (boundary); //move past boundary plus the \n and the additional "--" that are added to the read in boundary.
+                              
                     if (key != NULL && value!= NULL)
                       {
                         sprintf (env[count], "%s=%s", key, value);
