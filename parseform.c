@@ -5,6 +5,7 @@
 int
 main ()
 {
+  char *getform = strdup("GET /cgi-bin/show.cgi?db=foo.txt&record=2 HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n");
   char *form = strdup("POST /cgi-bin/show.cgi HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\nContent-Type: multipart/form-data; boundary=------WebKitFormBoundary4XdOKY1sHBOLMWEE\r\n[other HTTP headers we are ignoring...]\r\n\r\n--------WebKitFormBoundary4XdOKY1sHBOLMWEE\r\nContent-Disposition: form-data; name=\"db\"\r\n\r\nfoo.txt\r\n--------WebKitFormBoundary4XdOKY1sHBOLMWEE\r\nContent-Disposition: form-data; name=\"hash\"\r\n\r\nf1f4b8705111a70c176a942d26f765fb548e2be9\r\n--------WebKitFormBoundary4XdOKY1sHBOLMWEE\r\nContent-Disposition: form-data; name=\"record\"\r\n\r\n2\r\n--------WebKitFormBoundary4XdOKY1sHBOLMWEE--\r\n");
   char *method = strdup("POST");
   char *bound = strdup("------WebKitFormBoundary4XdOKY1sHBOLMWEE");
@@ -12,13 +13,13 @@ main ()
   //printf ("BOUNDARY:%s\n", bound);
   if (strcmp (method, "GET")==0) //GET request
     {
-     
+      //printf ("Get method");
       
     }
   else //POST request
     {
       char *line = strstr (form, bound);
-      while (line != NULL)
+      while (strlen (line) > 5)
         { 
           char* keyStart = strstr (line, "name=");
           keyStart += 6;
@@ -37,7 +38,9 @@ main ()
           
           printf ("%s=%s\n", key, value);
           
-          line += strlen (bound) + 3; //move past boundary plus the \n and the additional "--" that are added to the read in boundary.
+          line = valueEnd + strlen (bound) + 3; //move past boundary plus the \n and the additional "--" that are added to the read in boundary.
+          //printf ("Line length: %ld\n", strlen (line));
         }
     }
+    return 0;
 }

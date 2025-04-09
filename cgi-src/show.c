@@ -76,7 +76,6 @@ main ()
   else // looking for environment variables independently if query string is not set
     {
       db = getenv ("db");
-      //printf ("DB: %s\n", db);
       record = getenv ("record");
       hash = getenv ("hash");
 

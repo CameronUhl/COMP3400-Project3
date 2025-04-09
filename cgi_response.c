@@ -56,31 +56,59 @@ cgi_response (char *uri, char *version, char *method, char *query,
 	  {
 	    close (pipefd[0]); // close read end
 	    dup2 (pipefd[1], STDOUT_FILENO);
-	    char *args[] = { NULL }; // TODO copy parsing code into here to set environment variables!
-	    //char *qs = "QUERY_STRING=";
-	    //strcat (qs, query);
-	    //return query;
-	    char *env[] = { NULL };
-	    /*char *env[5];
+	    char *args[] = { NULL };
+	    
 	    if (strcmp (method, "GET") == 0)
 	      {
-	        char *qs = "QUERY_STRING=";
-	        strcat (qs, query);
-	        env[0] = qs;
-	        env[1] = NULL;
+	        if (query != NULL)
+	          {
+	            char buffer[1024];
+	            size_t n = snprintf (buffer, 0, "QUERY_STRING=%s", query);
+	            snprintf (buffer, n, "QUERY_STRING=%s", query);
+	            buffer[n+1] = '\0';
+	            char *qs = strdup (buffer);
+	            char *env[] = { qs, NULL };
+	            execve (uri, args, env);
+                  }
+                else 
+                  {
+                    char *env[] = { NULL };
+	            execve (uri, args, env);
+                  }
               }
             else
               {
+	        char *line = strstr (body, boundary);
 	        int count = 0;
-	        char *line = strtok (query, "&");
-	        while (line != NULL)
-	          {
-	            env[count++] = line;
-	            line = strtok (NULL, "&");
-	          }
-                env[count] = NULL;
-              }*/
-	    execve (uri, args, env);
+	        char *env[] = { NULL, NULL, NULL, NULL };
+                while (strlen (line) > 5)
+                  { 
+                    char* keyStart = strstr (line, "name=");
+                    keyStart += 6;
+                    char* keyEnd = strstr (keyStart, "\"");
+                    size_t keySize = keyEnd - keyStart;
+                    char *key = malloc (keySize +1);
+                    strncpy (key, keyStart, keySize);
+                    key[keySize] = '\0';
+                    
+                    char* valueStart = keyEnd + 5;
+                    char* valueEnd = strstr (valueStart, "\r");
+                    size_t valueSize = valueEnd - valueStart;
+                    char* value = malloc (valueSize + 1);
+                    strncpy (value, valueStart, valueSize);
+                    value [valueSize] = '\0';
+                    
+                    if (key != NULL && value!= NULL)
+                      {
+                        sprintf (env[count], "%s=%s", key, value);
+                        ++count;
+                      }
+                    line = valueEnd + strlen (boundary) + 3; //move past boundary plus the \n and the additional "--" that are added to the read in boundary.
+                    //printf ("Line length: %ld\n", strlen (line));
+                  }
+                  execve (uri, args, env);
+              }
+            
 	  }
 	else
 	  {

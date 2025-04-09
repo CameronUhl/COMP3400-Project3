@@ -1,0 +1,12 @@
+PART_hello                     FAIL (see outputs/PART_hello.diff for details)
+PART_shutdown                  FAIL (see outputs/PART_shutdown.diff for details)
+PART_show_all                  FAIL (see outputs/PART_show_all.diff for details)
+FULL_query_record              FAIL (see outputs/FULL_query_record.diff for details)
+FULL_query_db                  FAIL (see outputs/FULL_query_db.diff for details)
+FULL_query_mismatch            FAIL (see outputs/FULL_query_mismatch.diff for details)
+FULL_form_db                   FAIL (see outputs/FULL_form_db.diff for details)
+FULL_form_db_record            FAIL (see outputs/FULL_form_db_record.diff for details)
+FULL_form_full                 FAIL (see outputs/FULL_form_full.diff for details)
+FULL_form_full_mismatch        FAIL (see outputs/FULL_form_full_mismatch.diff for details)
+FULL_form_record               FAIL (see outputs/FULL_form_record.diff for details)
+No memory leak found.
