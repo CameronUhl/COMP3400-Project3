@@ -45,7 +45,7 @@ cgi_response (char *uri, char *version, char *method, char *query,
   //   "<h2>Hello world!</h2>\n"
   //   "</body>\n"
   //   "</html>\n"
-  if (strstr (uri, ".cgi") != NULL && access (uri, F_OK) == 0)
+  if (strstr (uri, ".cgi") != NULL && access (uri, F_OK | X_OK) == 0)
     {
 	int pipefd[2];
 	pipe (pipefd);
@@ -56,17 +56,15 @@ cgi_response (char *uri, char *version, char *method, char *query,
 	  {
 	    close (pipefd[0]); // close read end
 	    dup2 (pipefd[1], STDOUT_FILENO);
-	    char *args[] = { NULL };
+	    char *args[] = { uri, NULL };
 	    
 	    if (strcmp (method, "GET") == 0)
 	      {
 	        if (query != NULL)
 	          {
-	            char buffer[1024];
-	            size_t n = snprintf (buffer, 0, "QUERY_STRING=%s", query);
-	            snprintf (buffer, n, "QUERY_STRING=%s", query);
-	            buffer[n+1] = '\0';
-	            char *qs = strdup (buffer);
+	            size_t size = strlen ("QUERY_STRING=") + strlen (query) + 1;
+	            char *qs = malloc (size);
+	            snprintf (qs, size, "QUERY_STRING=%s", query);
 	            char *env[] = { qs, NULL };
 	            execve (uri, args, env);
                   }

@@ -56,7 +56,6 @@ main (int argc, char **argv)
       memset (&address, 0, sizeof (address));
       socklen_t addrlen = sizeof (struct sockaddr_in);
       int connfd = accept (socketfd, (struct sockaddr *) &address, &addrlen);
-
       if (connfd > 0)
         serve_request (connfd);
     }

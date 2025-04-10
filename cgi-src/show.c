@@ -96,8 +96,8 @@ main ()
       snprintf (buffer , n+1, "data/%s", record);
       record = strdup (buffer);*/
 
-      char dbname[256];
-      snprintf (dbname, 256, "data/%s", db);
+      char dbname[strlen(db) + 1];
+      snprintf (dbname, strlen (db) + 6, "data/%s", db);
       file  = fopen (dbname, "r");
     }
   else 

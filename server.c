@@ -20,7 +20,6 @@ serve_request (int connfd)
   char *version = NULL;
   char *boundary = NULL;
   char *body = NULL;
-  printf ("about to retreive in server.c\n");
   ssize_t size = retrieve_request (connfd, &method, &uri, &query, &version,
                                   &boundary, &body);
   if (size < 0)
