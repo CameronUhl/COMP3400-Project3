@@ -1,5 +1,5 @@
 --- ../server.c	2025-04-10 15:52:57.924288828 -0400
-+++ ckstyle/server.c.gnu	2025-04-10 16:59:56.314639142 -0400
++++ ckstyle/server.c.gnu	2025-04-10 17:17:02.544828919 -0400
 @@ -21,7 +21,7 @@
    char *boundary = NULL;
    char *body = NULL;

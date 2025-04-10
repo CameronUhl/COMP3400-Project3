@@ -1,5 +1,5 @@
 --- ../cgi-src/show.c	2025-04-10 15:01:20.404545351 -0400
-+++ ckstyle/show.c.gnu	2025-04-10 16:59:56.114639939 -0400
++++ ckstyle/show.c.gnu	2025-04-10 17:17:02.338829543 -0400
 @@ -1,10 +1,10 @@
  #include <fcntl.h>
 +#include <stdbool.h>

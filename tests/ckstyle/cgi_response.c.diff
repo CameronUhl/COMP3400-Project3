@@ -1,6 +1,6 @@
---- ../cgi_response.c	2025-04-10 16:59:41.099699840 -0400
-+++ ckstyle/cgi_response.c.gnu	2025-04-10 16:59:55.963640541 -0400
-@@ -47,106 +47,113 @@
+--- ../cgi_response.c	2025-04-10 17:16:42.485889544 -0400
++++ ckstyle/cgi_response.c.gnu	2025-04-10 17:17:02.185830008 -0400
+@@ -47,110 +47,118 @@
    //   "</html>\n"
    if (strstr (uri, ".cgi") != NULL && access (uri, F_OK | X_OK) == 0)
      {
@@ -73,14 +73,18 @@
 -	  {
 -            close (pipefd[1]); //close write end
 -            int bytes;
--            while ((bytes = read (pipefd[0], response, response_size)) > 0)
+-            size_t current_length = 0;
+-            while ((bytes = read (pipefd[0], response + current_length, response_size)) > 0)
 -              {
--                if (strlen (response) + bytes > response_size)
+-                current_length += bytes;
+-                if (current_length +1 > response_size)
 -                  {
 -                    response_size *= 2;
 -                    response = realloc (response, response_size);
+-                    
 -                  }
 -              }
+-            response[current_length] = '\0';
 -	  }
 -	int content_length = strlen (response);
 -	char* header = NULL;
@@ -175,14 +179,19 @@
 +        {
 +          close (pipefd[1]); // close write end
 +          int bytes;
-+          while ((bytes = read (pipefd[0], response, response_size)) > 0)
++          size_t current_length = 0;
++          while ((bytes
++                  = read (pipefd[0], response + current_length, response_size))
++                 > 0)
 +            {
-+              if (strlen (response) + bytes > response_size)
++              current_length += bytes;
++              if (current_length + 1 > response_size)
 +                {
 +                  response_size *= 2;
 +                  response = realloc (response, response_size);
 +                }
 +            }
++          response[current_length] = '\0';
 +        }
 +      int content_length = strlen (response);
 +      char *header = NULL;

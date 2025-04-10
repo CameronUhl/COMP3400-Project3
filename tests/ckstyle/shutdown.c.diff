@@ -1,5 +1,5 @@
 --- ../cgi-src/shutdown.c	2025-04-07 15:02:47.646751192 -0400
-+++ ckstyle/shutdown.c.gnu	2025-04-10 16:59:56.162639748 -0400
++++ ckstyle/shutdown.c.gnu	2025-04-10 17:17:02.388829392 -0400
 @@ -20,6 +20,7 @@
    // Once this program finishes running, the server should shut itself down.
    // (This shutdown is handled in serve.c, not here.)

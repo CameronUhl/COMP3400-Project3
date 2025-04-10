@@ -116,14 +116,18 @@ cgi_response (char *uri, char *version, char *method, char *query,
 	  {
             close (pipefd[1]); //close write end
             int bytes;
-            while ((bytes = read (pipefd[0], response, response_size)) > 0)
+            size_t current_length = 0;
+            while ((bytes = read (pipefd[0], response + current_length, response_size)) > 0)
               {
-                if (strlen (response) + bytes > response_size)
+                current_length += bytes;
+                if (current_length +1 > response_size)
                   {
                     response_size *= 2;
                     response = realloc (response, response_size);
+                    
                   }
               }
+            response[current_length] = '\0';
 	  }
 	int content_length = strlen (response);
 	char* header = NULL;
