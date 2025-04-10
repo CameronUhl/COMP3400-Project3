@@ -1,0 +1,91 @@
+--- ../parseform.c	2025-04-10 16:04:59.046721068 -0400
++++ ckstyle/parseform.c.gnu	2025-04-10 16:59:56.262639350 -0400
+@@ -5,48 +5,61 @@
+ int
+ main ()
+ {
+-  char buffer[10000];// = strdup("GET /cgi-bin/show.cgi?db=foo.txt&record=2 HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n");
+-  FILE *fd = fopen("tests/forms/form_record.txt", "r");
+-  size_t bytes = fread(buffer, 1, 10000, fd);
++  char buffer[10000]; // = strdup("GET /cgi-bin/show.cgi?db=foo.txt&record=2
++                      // HTTP/1.1\r\nHost: localhost\r\nConnection:
++                      // close\r\n\r\n");
++  FILE *fd = fopen ("tests/forms/form_record.txt", "r");
++  size_t bytes = fread (buffer, 1, 10000, fd);
+   char *form = strndup (buffer, bytes);
+   printf ("%s\n", form);
+-  /*char *form = strdup("POST /cgi-bin/show.cgi HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\nContent-Type: multipart/form-data; boundary=------WebKitFormBoundary4XdOKY1sHBOLMWEE\r\n[other HTTP headers we are ignoring...]\r\n\r\n--------WebKitFormBoundary4XdOKY1sHBOLMWEE\r\nContent-Disposition: form-data; name=\"db\"\r\n\r\nfoo.txt\r\n--------WebKitFormBoundary4XdOKY1sHBOLMWEE\r\nContent-Disposition: form-data; name=\"hash\"\r\n\r\nf1f4b8705111a70c176a942d26f765fb548e2be9\r\n--------WebKitFormBoundary4XdOKY1sHBOLMWEE\r\nContent-Disposition: form-data; name=\"record\"\r\n\r\n2\r\n--------WebKitFormBoundary4XdOKY1sHBOLMWEE--\r\n");*/
+-  char *method = strdup("POST");
+-  char *bound = strdup("------WebKitFormBoundary4XdOKY1sHBOLMWEE");
+-  //printf ("FORM:%s\n", form);
+-  //printf ("BOUNDARY:%s\n", bound);
+-  if (strcmp (method, "GET")==0) //GET request
++  /*char *form = strdup("POST /cgi-bin/show.cgi HTTP/1.1\r\nHost:
++   * localhost\r\nConnection: close\r\nContent-Type: multipart/form-data;
++   * boundary=------WebKitFormBoundary4XdOKY1sHBOLMWEE\r\n[other HTTP headers
++   * we are
++   * ignoring...]\r\n\r\n--------WebKitFormBoundary4XdOKY1sHBOLMWEE\r\nContent-Disposition:
++   * form-data;
++   * name=\"db\"\r\n\r\nfoo.txt\r\n--------WebKitFormBoundary4XdOKY1sHBOLMWEE\r\nContent-Disposition:
++   * form-data;
++   * name=\"hash\"\r\n\r\nf1f4b8705111a70c176a942d26f765fb548e2be9\r\n--------WebKitFormBoundary4XdOKY1sHBOLMWEE\r\nContent-Disposition:
++   * form-data;
++   * name=\"record\"\r\n\r\n2\r\n--------WebKitFormBoundary4XdOKY1sHBOLMWEE--\r\n");*/
++  char *method = strdup ("POST");
++  char *bound = strdup ("------WebKitFormBoundary4XdOKY1sHBOLMWEE");
++  // printf ("FORM:%s\n", form);
++  // printf ("BOUNDARY:%s\n", bound);
++  if (strcmp (method, "GET") == 0) // GET request
+     {
+-      //printf ("Get method");
+-      
++      // printf ("Get method");
+     }
+-  else //POST request
++  else // POST request
+     {
+       char *line = strstr (form, bound);
+-      //line += strlen(bound) +1;
++      // line += strlen(bound) +1;
+       while (strlen (line) > 4)
+-        { 
+-          char* keyStart = strstr (line, "name=");
++        {
++          char *keyStart = strstr (line, "name=");
+           keyStart += 6;
+-          char* keyEnd = strstr (keyStart, "\"");
++          char *keyEnd = strstr (keyStart, "\"");
+           size_t keySize = keyEnd - keyStart;
+-          char *key = malloc (keySize +1);
++          char *key = malloc (keySize + 1);
+           strncpy (key, keyStart, keySize);
+           key[keySize] = '\0';
+-          
+-          char* valueStart = keyEnd + 5;
+-          char* valueEnd = strstr (valueStart, "\n");
++
++          char *valueStart = keyEnd + 5;
++          char *valueEnd = strstr (valueStart, "\n");
+           size_t valueSize = valueEnd - valueStart;
+-          char* value = malloc (valueSize + 1);
++          char *value = malloc (valueSize + 1);
+           strncpy (value, valueStart, valueSize);
+-          value [valueSize] = '\0';
+-          
++          value[valueSize] = '\0';
++
+           printf ("%s=%s\n", key, value);
+-          
++
+           line = strstr (keyEnd, bound);
+-          line += strlen (bound); //move past boundary plus the \n and the additional "--" that are added to the read in boundary.
+-          //printf ("Line length: %ld\n", strlen (line));
++          line += strlen (
++              bound); // move past boundary plus the \n and the additional "--"
++                      // that are added to the read in boundary.
++          // printf ("Line length: %ld\n", strlen (line));
+         }
+     }
+-    return 0;
++  return 0;
+ }

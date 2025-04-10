@@ -64,13 +64,13 @@ serve_request (int connfd)
   if (strncmp (uri, "srv_root", 8) == 0)
     {
       response = html_response (uri, version);
-      write (connfd, response, strlen (response));
+      
     }
   else 
     {
-      response = cgi_response (uri, version, method, query, size, boundary, body); // fork in CGI response because we still need to get the return value from the function.		
+      response = cgi_response (uri, version, method, query, size, boundary, body); // fork in CGI response because we still need to get the return value from the function.
     }
-    
+    write (connfd, response, strlen (response));
   shutdown (connfd, SHUT_RDWR);
   close (connfd);
 

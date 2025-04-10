@@ -49,9 +49,9 @@ cgi_response (char *uri, char *version, char *method, char *query,
     {
 	int pipefd[2];
 	pipe (pipefd);
-	
+	size_t response_size = 1024;
+        char* response = malloc (response_size);
 	pid_t child = fork();
-	char* response = malloc (2048);
 	if (child == 0) //child code
 	  {
 	    close (pipefd[0]); // close read end
@@ -65,6 +65,7 @@ cgi_response (char *uri, char *version, char *method, char *query,
 	            size_t size = strlen ("QUERY_STRING=") + strlen (query) + 1;
 	            char *qs = malloc (size);
 	            snprintf (qs, size, "QUERY_STRING=%s", query);
+	            qs[size] = '\0';
 	            char *env[] = { qs, NULL };
 	            execve (uri, args, env);
                   }
@@ -100,24 +101,29 @@ cgi_response (char *uri, char *version, char *method, char *query,
                     
                     line = strstr (keyEnd, boundary);
                     line += strlen (boundary); //move past boundary plus the \n and the additional "--" that are added to the read in boundary.
-                              
-                    if (key != NULL && value!= NULL)
-                      {
-                        sprintf (env[count], "%s=%s", key, value);
-                        ++count;
-                      }
-                    line = valueEnd + strlen (boundary) + 3; //move past boundary plus the \n and the additional "--" that are added to the read in boundary.
-                    //printf ("Line length: %ld\n", strlen (line));
-                  }
-                  execve (uri, args, env);
+                        
+                    char buffer [1024];
+                    int n = snprintf (buffer, 0, "%s=%s", key, value);
+                    env[count] = malloc (n+1);
+                    snprintf (env[count], n, "%s=%s", key, value);
+                    env[count][n] = '\0';
+                    ++count;
+                 }
+                execve (uri, args, env);
               }
-            
 	  }
 	else
 	  {
             close (pipefd[1]); //close write end
-            read (pipefd[0], response, 2048);
-            close (pipefd[0]); 
+            int bytes;
+            while ((bytes = read (pipefd[0], response, response_size)) > 0)
+              {
+                if (strlen (response) + bytes > response_size)
+                  {
+                    response_size *= 2;
+                    response = realloc (response, response_size);
+                  }
+              }
 	  }
 	int content_length = strlen (response);
 	char* header = NULL;

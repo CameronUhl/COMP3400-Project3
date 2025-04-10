@@ -1,0 +1,54 @@
+--- ../main.c	2025-04-10 15:46:46.986623901 -0400
++++ ckstyle/main.c.gnu	2025-04-10 16:59:56.212639549 -0400
+@@ -11,8 +11,8 @@
+ #include <stdlib.h>
+ #include <string.h>
+ 
+-#include "server.h"
+ #include "base.h"
++#include "server.h"
+ 
+ int cmdline (int, char **, char **, char **);
+ 
+@@ -21,7 +21,8 @@
+ {
+   printf ("Usage: cgi [options]\n");
+   printf (" Option is:\n");
+-  printf ("  -p P        Use application protocol P instead of default port\n");
++  printf (
++      "  -p P        Use application protocol P instead of default port\n");
+   printf ("  -f PIDFILE  Use PIDFILE to store the server PID (default PID)\n");
+   printf ("\n Sample requests are:\n");
+   printf ("  \"GET / HTTP/1.0\"\n");
+@@ -44,21 +45,21 @@
+ 
+   // Start the base server distribution using the port number
+   int socketfd = start_server (protocol, pidfile);
+-  //printf ("socketfd: %d\n", socketfd);
++  // printf ("socketfd: %d\n", socketfd);
+   if (socketfd < 0)
+-    return EXIT_FAILURE;    
+-  //printf ("socketfd good\n");
+-  // Enter into an infinite loop that accepts requests and passes
+-  // them off to serve_request() for processing.
++    return EXIT_FAILURE;
++  // printf ("socketfd good\n");
++  //  Enter into an infinite loop that accepts requests and passes
++  //  them off to serve_request() for processing.
+   while (1)
+     {
+       struct sockaddr_in address;
+-      memset (&address, 0, sizeof (address));                                                        
+-      //printf ("memset good\n");
++      memset (&address, 0, sizeof (address));
++      // printf ("memset good\n");
+       socklen_t addrlen = sizeof (struct sockaddr_in);
+-      //printf ("addrlen good: %d\n", addrlen);
+-      int connfd = accept (socketfd, (struct sockaddr *) &address, &addrlen);
+-      //printf ("connfd: %d\n", connfd);
++      // printf ("addrlen good: %d\n", addrlen);
++      int connfd = accept (socketfd, (struct sockaddr *)&address, &addrlen);
++      // printf ("connfd: %d\n", connfd);
+       if (connfd > 0)
+         serve_request (connfd);
+     }

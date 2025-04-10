@@ -5,9 +5,9 @@
 int
 main ()
 {
-  char buffer[1024];// = strdup("GET /cgi-bin/show.cgi?db=foo.txt&record=2 HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n");
-  FILE *fd = fopen("tests/forms/form_full.txt", "r");
-  size_t bytes = fread(buffer, 1, 1024, fd);
+  char buffer[10000];// = strdup("GET /cgi-bin/show.cgi?db=foo.txt&record=2 HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n");
+  FILE *fd = fopen("tests/forms/form_record.txt", "r");
+  size_t bytes = fread(buffer, 1, 10000, fd);
   char *form = strndup (buffer, bytes);
   printf ("%s\n", form);
   /*char *form = strdup("POST /cgi-bin/show.cgi HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\nContent-Type: multipart/form-data; boundary=------WebKitFormBoundary4XdOKY1sHBOLMWEE\r\n[other HTTP headers we are ignoring...]\r\n\r\n--------WebKitFormBoundary4XdOKY1sHBOLMWEE\r\nContent-Disposition: form-data; name=\"db\"\r\n\r\nfoo.txt\r\n--------WebKitFormBoundary4XdOKY1sHBOLMWEE\r\nContent-Disposition: form-data; name=\"hash\"\r\n\r\nf1f4b8705111a70c176a942d26f765fb548e2be9\r\n--------WebKitFormBoundary4XdOKY1sHBOLMWEE\r\nContent-Disposition: form-data; name=\"record\"\r\n\r\n2\r\n--------WebKitFormBoundary4XdOKY1sHBOLMWEE--\r\n");*/

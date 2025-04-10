@@ -1,0 +1,215 @@
+--- ../cgi_response.c	2025-04-10 16:59:41.099699840 -0400
++++ ckstyle/cgi_response.c.gnu	2025-04-10 16:59:55.963640541 -0400
+@@ -47,106 +47,113 @@
+   //   "</html>\n"
+   if (strstr (uri, ".cgi") != NULL && access (uri, F_OK | X_OK) == 0)
+     {
+-	int pipefd[2];
+-	pipe (pipefd);
+-	size_t response_size = 1024;
+-        char* response = malloc (response_size);
+-	pid_t child = fork();
+-	if (child == 0) //child code
+-	  {
+-	    close (pipefd[0]); // close read end
+-	    dup2 (pipefd[1], STDOUT_FILENO);
+-	    char *args[] = { uri, NULL };
+-	    
+-	    if (strcmp (method, "GET") == 0)
+-	      {
+-	        if (query != NULL)
+-	          {
+-	            size_t size = strlen ("QUERY_STRING=") + strlen (query) + 1;
+-	            char *qs = malloc (size);
+-	            snprintf (qs, size, "QUERY_STRING=%s", query);
+-	            qs[size] = '\0';
+-	            char *env[] = { qs, NULL };
+-	            execve (uri, args, env);
+-                  }
+-                else 
+-                  {
+-                    char *env[] = { NULL };
+-	            execve (uri, args, env);
+-                  }
+-              }
+-            else
+-              {
+-	        char *line = strstr (body, boundary);
+-	        int count = 0;
+-	        char *env[] = { NULL, NULL, NULL, NULL };
+-                while (strlen (line) > 4)
+-                  { 
+-                    char* keyStart = strstr (line, "name=");
+-                    keyStart += 6;
+-                    char* keyEnd = strstr (keyStart, "\"");
+-                    size_t keySize = keyEnd - keyStart;
+-                    char *key = malloc (keySize +1);
+-                    strncpy (key, keyStart, keySize);
+-                    key[keySize] = '\0';
+-                    
+-                    char* valueStart = keyEnd + 5;
+-                    char* valueEnd = strstr (valueStart, "\n");
+-                    size_t valueSize = valueEnd - valueStart;
+-                    char* value = malloc (valueSize + 1);
+-                    strncpy (value, valueStart, valueSize);
+-                    value [valueSize] = '\0';
+-                    
+-                    printf ("%s=%s\n", key, value);
+-                    
+-                    line = strstr (keyEnd, boundary);
+-                    line += strlen (boundary); //move past boundary plus the \n and the additional "--" that are added to the read in boundary.
+-                        
+-                    char buffer [1024];
+-                    int n = snprintf (buffer, 0, "%s=%s", key, value);
+-                    env[count] = malloc (n+1);
+-                    snprintf (env[count], n, "%s=%s", key, value);
+-                    env[count][n] = '\0';
+-                    ++count;
+-                 }
+-                execve (uri, args, env);
+-              }
+-	  }
+-	else
+-	  {
+-            close (pipefd[1]); //close write end
+-            int bytes;
+-            while ((bytes = read (pipefd[0], response, response_size)) > 0)
+-              {
+-                if (strlen (response) + bytes > response_size)
+-                  {
+-                    response_size *= 2;
+-                    response = realloc (response, response_size);
+-                  }
+-              }
+-	  }
+-	int content_length = strlen (response);
+-	char* header = NULL;
+-	
+-	char* connection;
+-	if (strcmp (version, "HTTP/1.1") == 0)
+-	  {
+-            connection = "Connection: close\r\n\r\n";
+-	  }
+-	else 
+-	  {
+-	    connection = "\r\n";
+-	  }
+-	int n = snprintf (header, 0, "%s 200 OK\r\nContent-Type: text/html; charset=UTF-8\r\nContent-Length: %d\r\n%s", version, content_length, connection);
+-	header = malloc (n + content_length + 1);
+-	snprintf (header, n+1, "%s 200 OK\r\nContent-Type: text/html; charset=UTF-8\r\nContent-Length: %d\r\n%s", version, content_length, connection);
+-	//return header;
+-	strcat (header, response);
+-	return header;
+-    }		
+-  return strdup ("HTTP/1.0 404 Not Found" CRLF CRLF);	
++      int pipefd[2];
++      pipe (pipefd);
++      size_t response_size = 1024;
++      char *response = malloc (response_size);
++      pid_t child = fork ();
++      if (child == 0) // child code
++        {
++          close (pipefd[0]); // close read end
++          dup2 (pipefd[1], STDOUT_FILENO);
++          char *args[] = { uri, NULL };
+ 
+-  
++          if (strcmp (method, "GET") == 0)
++            {
++              if (query != NULL)
++                {
++                  size_t size = strlen ("QUERY_STRING=") + strlen (query) + 1;
++                  char *qs = malloc (size);
++                  snprintf (qs, size, "QUERY_STRING=%s", query);
++                  qs[size] = '\0';
++                  char *env[] = { qs, NULL };
++                  execve (uri, args, env);
++                }
++              else
++                {
++                  char *env[] = { NULL };
++                  execve (uri, args, env);
++                }
++            }
++          else
++            {
++              char *line = strstr (body, boundary);
++              int count = 0;
++              char *env[] = { NULL, NULL, NULL, NULL };
++              while (strlen (line) > 4)
++                {
++                  char *keyStart = strstr (line, "name=");
++                  keyStart += 6;
++                  char *keyEnd = strstr (keyStart, "\"");
++                  size_t keySize = keyEnd - keyStart;
++                  char *key = malloc (keySize + 1);
++                  strncpy (key, keyStart, keySize);
++                  key[keySize] = '\0';
++
++                  char *valueStart = keyEnd + 5;
++                  char *valueEnd = strstr (valueStart, "\n");
++                  size_t valueSize = valueEnd - valueStart;
++                  char *value = malloc (valueSize + 1);
++                  strncpy (value, valueStart, valueSize);
++                  value[valueSize] = '\0';
++
++                  printf ("%s=%s\n", key, value);
++
++                  line = strstr (keyEnd, boundary);
++                  line
++                      += strlen (boundary); // move past boundary plus the \n
++                                            // and the additional "--" that are
++                                            // added to the read in boundary.
++
++                  char buffer[1024];
++                  int n = snprintf (buffer, 0, "%s=%s", key, value);
++                  env[count] = malloc (n + 1);
++                  snprintf (env[count], n, "%s=%s", key, value);
++                  env[count][n] = '\0';
++                  ++count;
++                }
++              execve (uri, args, env);
++            }
++        }
++      else
++        {
++          close (pipefd[1]); // close write end
++          int bytes;
++          while ((bytes = read (pipefd[0], response, response_size)) > 0)
++            {
++              if (strlen (response) + bytes > response_size)
++                {
++                  response_size *= 2;
++                  response = realloc (response, response_size);
++                }
++            }
++        }
++      int content_length = strlen (response);
++      char *header = NULL;
++
++      char *connection;
++      if (strcmp (version, "HTTP/1.1") == 0)
++        {
++          connection = "Connection: close\r\n\r\n";
++        }
++      else
++        {
++          connection = "\r\n";
++        }
++      int n = snprintf (header, 0,
++                        "%s 200 OK\r\nContent-Type: text/html; "
++                        "charset=UTF-8\r\nContent-Length: %d\r\n%s",
++                        version, content_length, connection);
++      header = malloc (n + content_length + 1);
++      snprintf (header, n + 1,
++                "%s 200 OK\r\nContent-Type: text/html; "
++                "charset=UTF-8\r\nContent-Length: %d\r\n%s",
++                version, content_length, connection);
++      // return header;
++      strcat (header, response);
++      return header;
++    }
++  return strdup ("HTTP/1.0 404 Not Found" CRLF CRLF);
+ 
+   // TODO [FULL]: Set the environment variables needed for the CGI programs
+   // located in cgi-bin. To do this, you will need to use either execve()

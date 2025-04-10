@@ -1,0 +1,53 @@
+--- ../server.c	2025-04-10 15:52:57.924288828 -0400
++++ ckstyle/server.c.gnu	2025-04-10 16:59:56.314639142 -0400
+@@ -21,7 +21,7 @@
+   char *boundary = NULL;
+   char *body = NULL;
+   ssize_t size = retrieve_request (connfd, &method, &uri, &query, &version,
+-                                  &boundary, &body);
++                                   &boundary, &body);
+   if (size < 0)
+     {
+       // Ignore certain types of request (such as favicon.ico)
+@@ -59,18 +59,20 @@
+   // files, you will need to pipe/fork/dup2/exec the program. Also, note that
+   // the query string will need to be passed using an environment variable
+   // called "QUERY_STRING".
+-  
++
+   char *response = NULL;
+   if (strncmp (uri, "srv_root", 8) == 0)
+     {
+       response = html_response (uri, version);
+-      
+     }
+-  else 
++  else
+     {
+-      response = cgi_response (uri, version, method, query, size, boundary, body); // fork in CGI response because we still need to get the return value from the function.
++      response
++          = cgi_response (uri, version, method, query, size, boundary,
++                          body); // fork in CGI response because we still need
++                                 // to get the return value from the function.
+     }
+-    write (connfd, response, strlen (response));
++  write (connfd, response, strlen (response));
+   shutdown (connfd, SHUT_RDWR);
+   close (connfd);
+ 
+@@ -86,13 +88,13 @@
+ 
+   // TODO [PART]: If the URI is for the shutdown.cgi file, kill the current
+   // process with the SIGUSR1 signal.
+-  
++
+   if (strcmp (uri, "cgi-bin/shutdown.cgi") == 0)
+     {
+       free (uri);
+       raise (SIGUSR1);
+     }
+-  
++
+   if (uri != NULL)
+     free (uri);
+ 

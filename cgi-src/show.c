@@ -101,8 +101,7 @@ main ()
       file  = fopen (dbname, "r");
     }
   else 
-    {
-      //printf ("Opening data/data.txt\n");     
+    {    
       file  = fopen ("data/data.txt", "r");
     }
   printf ("  <body>\n    <div class=\"container\">\n      <br />\n      <h2 class=\"mb-0\">Database Records</h2>\n      <div class=\"row\">\n");

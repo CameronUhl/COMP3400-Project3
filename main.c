@@ -1,7 +1,7 @@
 /*
  * COMP 3400: Template project driver
  *
- * Name: 
+ * Name: Joel Justice & Cameron Uhl
  */
 
 #include <assert.h>
@@ -44,18 +44,21 @@ main (int argc, char **argv)
 
   // Start the base server distribution using the port number
   int socketfd = start_server (protocol, pidfile);
-
+  //printf ("socketfd: %d\n", socketfd);
   if (socketfd < 0)
-    return EXIT_FAILURE;
-
+    return EXIT_FAILURE;    
+  //printf ("socketfd good\n");
   // Enter into an infinite loop that accepts requests and passes
   // them off to serve_request() for processing.
   while (1)
     {
       struct sockaddr_in address;
-      memset (&address, 0, sizeof (address));
+      memset (&address, 0, sizeof (address));                                                        
+      //printf ("memset good\n");
       socklen_t addrlen = sizeof (struct sockaddr_in);
+      //printf ("addrlen good: %d\n", addrlen);
       int connfd = accept (socketfd, (struct sockaddr *) &address, &addrlen);
+      //printf ("connfd: %d\n", connfd);
       if (connfd > 0)
         serve_request (connfd);
     }
